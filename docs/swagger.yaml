@@ -1,0 +1,293 @@
+basePath: ./
+definitions:
+  dto.Charge:
+    properties:
+      bill:
+        type: integer
+      vehicleNumber:
+        type: string
+    type: object
+  dto.DailyReport:
+    properties:
+      date:
+        type: string
+      totalFeesCollected:
+        type: integer
+      totalVehicles:
+        type: integer
+      totatlParkingTimeHours:
+        type: number
+    type: object
+  dto.Error:
+    properties:
+      message:
+        type: string
+    type: object
+  dto.IDWrapper:
+    properties:
+      id:
+        minimum: 1
+        type: integer
+    required:
+    - id
+    type: object
+  dto.Maintenance:
+    properties:
+      maintenance:
+        description: true to enable maintenance mode, false to disable
+        type: boolean
+      slotId:
+        type: integer
+    type: object
+  dto.Park:
+    properties:
+      lotId:
+        type: integer
+      vehicleNumber:
+        type: string
+    type: object
+  dto.ParkingLot:
+    properties:
+      capacity:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.ParkingSlotStatus:
+    properties:
+      slotId:
+        type: integer
+      status:
+        type: string
+      vehicleNumber:
+        type: string
+    type: object
+  dto.UnPark:
+    properties:
+      slotId:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Describes parkWise REST API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: parkWise API
+  version: "1.0"
+paths:
+  /v1/park:
+    post:
+      consumes:
+      - application/json
+      description: Park
+      parameters:
+      - description: Park params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Park'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: parked successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.Error'
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Park
+      tags:
+      - Vehicle
+  /v1/parking-lots:
+    post:
+      consumes:
+      - application/json
+      description: Create a new Parking Lot in the system
+      parameters:
+      - description: ParkingLot params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ParkingLot'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.IDWrapper'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.Error'
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Add a new Parking Lot
+      tags:
+      - ParkingLot
+  /v1/parking-lots/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get ParkingLotStatus
+      parameters:
+      - description: Lot ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ParkingSlotStatus'
+            type: array
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Get ParkingLotStatus
+      tags:
+      - ParkingLot
+  /v1/reports/daily:
+    get:
+      consumes:
+      - application/json
+      description: DailyReport
+      parameters:
+      - description: date=YYYY-MM-DD
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DailyReport'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.Error'
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: DailyReport
+      tags:
+      - ParkingLot
+  /v1/slots/maintenance:
+    post:
+      consumes:
+      - application/json
+      description: Parking slot maintenance
+      parameters:
+      - description: Maintenance params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Maintenance'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Maintenance updated
+          schema:
+            type: string
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.Error'
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Parking slot maintenance
+      tags:
+      - ParkingLot
+  /v1/unpark:
+    post:
+      consumes:
+      - application/json
+      description: UnPark
+      parameters:
+      - description: UnPark params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UnPark'
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Charge'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.Error'
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: UnPark
+      tags:
+      - Vehicle
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  BasicAuth:
+    type: basic
+swagger: "2.0"
